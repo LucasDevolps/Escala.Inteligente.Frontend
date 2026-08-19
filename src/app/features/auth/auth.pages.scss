@@ -1,0 +1,250 @@
+:host {
+  display: block;
+  min-height: 100%;
+}
+.auth-layout {
+  min-width: 0;
+  min-height: 100vh;
+  display: grid;
+  background: white;
+}
+.auth-hero {
+  display: none;
+}
+.auth-panel {
+  min-width: 0;
+  display: grid;
+  align-items: center;
+  padding: 2rem 1.15rem;
+}
+.auth-panel__inner {
+  width: 100%;
+  min-width: 0;
+  max-width: 28rem;
+  margin: auto;
+}
+.auth-mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 3.25rem;
+  font: 800 1.05rem var(--font-display);
+}
+.auth-mobile-brand span,
+.auth-hero__brand span {
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 0.72rem;
+  background: var(--brand);
+  color: white;
+  font-size: 0.72rem;
+}
+.auth-panel h1 {
+  margin: 0.25rem 0 0.45rem;
+  font-size: clamp(2rem, 8vw, 2.75rem);
+}
+.auth-subtitle {
+  margin: 0 0 1.75rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.auth-panel form {
+  display: grid;
+  gap: 1rem;
+}
+.auth-help {
+  margin: 1.4rem 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+.auth-help a {
+  color: var(--brand-deep);
+  font-weight: 700;
+}
+.privacy-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 2.25rem 0 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.privacy-note span {
+  color: var(--brand);
+}
+.password-field {
+  position: relative;
+}
+.password-field input {
+  padding-right: 5rem;
+}
+.password-toggle {
+  position: absolute;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
+  min-height: 2.25rem;
+  padding: 0 0.55rem;
+  border: 0;
+  background: transparent;
+  color: var(--brand-deep);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (min-width: 56rem) {
+  .auth-layout {
+    grid-template-columns: minmax(25rem, 0.9fr) minmax(30rem, 1.1fr);
+  }
+  .auth-hero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    padding: 2.25rem clamp(2rem, 5vw, 4.75rem);
+    color: white;
+    background:
+      radial-gradient(circle at 80% 15%, rgba(95, 211, 183, 0.24), transparent 27%),
+      linear-gradient(145deg, #102f35, #0b4948 72%, #13645a);
+  }
+  .auth-hero::after {
+    content: '';
+    position: absolute;
+    width: 24rem;
+    height: 24rem;
+    right: -10rem;
+    bottom: -10rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 4rem rgba(255, 255, 255, 0.025),
+      0 0 0 8rem rgba(255, 255, 255, 0.018);
+  }
+  .auth-hero__brand {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font: 800 1.05rem var(--font-display);
+  }
+  .auth-hero__brand span {
+    background: rgba(255, 255, 255, 0.13);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .auth-hero__content {
+    position: relative;
+    z-index: 1;
+    max-width: 32rem;
+  }
+  .auth-hero h1 {
+    margin: 0.7rem 0 1rem;
+    font-size: clamp(2.7rem, 4.2vw, 4.4rem);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+  }
+  .auth-hero p {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 1.05rem;
+    line-height: 1.65;
+  }
+  .auth-hero > small {
+    position: relative;
+    z-index: 1;
+    color: rgba(255, 255, 255, 0.52);
+    letter-spacing: 0.03em;
+  }
+  .auth-panel {
+    padding: 3rem clamp(3rem, 7vw, 7.5rem);
+  }
+  .auth-mobile-brand {
+    display: none;
+  }
+  .auth-panel__inner {
+    margin: auto;
+  }
+  .auth-hero__illustration {
+    position: relative;
+    width: 21rem;
+    height: 13rem;
+    margin-top: 2.5rem;
+  }
+  .mini-calendar {
+    position: absolute;
+    inset: 1rem 1.2rem 0 0;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.45rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 1.15rem;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    transform: rotate(-2deg);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.18);
+  }
+  .mini-calendar span {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    border-radius: 0.42rem;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.66rem;
+  }
+  .mini-calendar__active {
+    background: var(--aqua) !important;
+    color: var(--ink) !important;
+    font-weight: 800;
+  }
+  .floating-chip {
+    position: absolute;
+    z-index: 2;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.7rem;
+    color: var(--ink);
+    background: white;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+  .floating-chip--one {
+    left: -0.6rem;
+    bottom: 1rem;
+  }
+  .floating-chip--two {
+    right: -1rem;
+    top: 0;
+  }
+  .activation-steps {
+    display: grid;
+    gap: 0.85rem;
+    margin: 2rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .activation-steps li {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .activation-steps span {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--aqua);
+    font-weight: 800;
+  }
+}
