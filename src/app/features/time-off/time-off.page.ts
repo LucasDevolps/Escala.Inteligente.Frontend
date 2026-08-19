@@ -8,6 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { TimeOffService } from '../../core/services/time-off.service';
 import { ToastService } from '../../core/services/toast.service';
 import { formatDate, formatDateTime } from '../../core/utils/date.utils';
+import { IconComponent } from '../../shared/components/icon.component';
 import { LoadingComponent } from '../../shared/components/loading.component';
 import { PaginationComponent } from '../../shared/components/pagination.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge.component';
@@ -26,6 +27,7 @@ const notBlank = (control: { readonly value: unknown }): { readonly blank: true 
   imports: [
     RouterLink,
     ReactiveFormsModule,
+    IconComponent,
     LoadingComponent,
     PaginationComponent,
     StatusBadgeComponent,
@@ -45,7 +47,7 @@ const notBlank = (control: { readonly value: unknown }): { readonly blank: true 
       </div>
       @if (!auth.isManager()) {
         <a class="button button--primary" routerLink="/time-off/new"
-          ><span aria-hidden="true">＋</span> Solicitar folga</a
+          ><app-icon name="plus" /> Solicitar folga</a
         >
       }
     </header>
@@ -65,7 +67,7 @@ const notBlank = (control: { readonly value: unknown }): { readonly blank: true 
 
     @if (auth.isManager()) {
       <div class="privacy-banner">
-        <span aria-hidden="true">◈</span>
+        <span aria-hidden="true"><app-icon name="shield-check" /></span>
         <p>
           <strong>Privacidade em primeiro lugar.</strong> Use as descrições apenas para analisar o
           pedido e não copie informações pessoais para outros sistemas.
@@ -75,14 +77,14 @@ const notBlank = (control: { readonly value: unknown }): { readonly blank: true 
 
     @if (errorMessage()) {
       <div class="alert alert--danger" role="alert">
-        <span aria-hidden="true">!</span><span>{{ errorMessage() }}</span>
+        <span aria-hidden="true"><app-icon name="alert" /></span><span>{{ errorMessage() }}</span>
       </div>
     }
     @if (loading()) {
       <app-loading label="Carregando solicitações…" />
     } @else if (pageData().items.length === 0) {
       <section class="empty-state card">
-        <span class="empty-state__icon" aria-hidden="true">○</span>
+        <span class="empty-state__icon" aria-hidden="true"><app-icon name="calendar-off" /></span>
         <h2>Nenhuma solicitação encontrada</h2>
         <p>
           {{
@@ -140,7 +142,7 @@ const notBlank = (control: { readonly value: unknown }): { readonly blank: true 
                     (click)="approve(request)"
                     [disabled]="actionLoading()"
                   >
-                    ✓ Aprovar</button
+                    <app-icon name="check" /> Aprovar</button
                   ><button
                     type="button"
                     class="button button--danger-ghost"
@@ -181,11 +183,11 @@ const notBlank = (control: { readonly value: unknown }): { readonly blank: true 
               (click)="coverageRisk.set(null)"
               aria-label="Fechar"
             >
-              ×
+              <app-icon name="x" />
             </button>
           </header>
           <div class="alert alert--warning">
-            <span aria-hidden="true">!</span
+            <span aria-hidden="true"><app-icon name="alert" /></span
             ><span
               >Aprovar a folga de {{ request.employeeName ?? 'este colaborador' }} em
               {{ formatDate(request.date) }} deixará a equipe abaixo da cobertura mínima.</span
@@ -224,7 +226,7 @@ const notBlank = (control: { readonly value: unknown }): { readonly blank: true 
               <p>Uma explicação objetiva será enviada ao colaborador.</p>
             </div>
             <button type="button" class="icon-button" (click)="closeReject()" aria-label="Fechar">
-              ×
+              <app-icon name="x" />
             </button>
           </header>
           <div class="field">

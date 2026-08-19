@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { IconComponent } from './icon.component';
 
 @Component({
   selector: 'app-pagination',
+  imports: [IconComponent],
   template: `
     @if (totalPages > 1) {
       <nav class="pagination" aria-label="Paginação">
@@ -11,7 +13,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
           [disabled]="page <= 1"
           (click)="change.emit(page - 1)"
         >
-          ← Anterior
+          <app-icon name="arrow-left" /> Anterior
         </button>
         <span
           >Página <strong>{{ page }}</strong> de {{ totalPages }}</span
@@ -22,7 +24,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
           [disabled]="page >= totalPages"
           (click)="change.emit(page + 1)"
         >
-          Próxima →
+          Próxima <app-icon name="arrow-right" />
         </button>
       </nav>
     }

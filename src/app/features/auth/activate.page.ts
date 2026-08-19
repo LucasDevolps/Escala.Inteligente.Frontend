@@ -12,6 +12,7 @@ import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { AuthService } from '../../core/services/auth.service';
+import { IconComponent } from '../../shared/components/icon.component';
 
 const passwordsMatch: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('newPassword')?.value as string | undefined;
@@ -20,7 +21,7 @@ const passwordsMatch: ValidatorFn = (control: AbstractControl): ValidationErrors
 };
 
 @Component({
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, IconComponent],
   template: `
     <main class="auth-layout" id="main-content">
       <section class="auth-hero auth-hero--activation" aria-hidden="true">
@@ -50,7 +51,8 @@ const passwordsMatch: ValidatorFn = (control: AbstractControl): ValidationErrors
 
           @if (errorMessage()) {
             <div class="alert alert--danger" role="alert">
-              <span aria-hidden="true">!</span><span>{{ errorMessage() }}</span>
+              <span aria-hidden="true"><app-icon name="alert" /></span
+              ><span>{{ errorMessage() }}</span>
             </div>
           }
 
@@ -118,7 +120,9 @@ const passwordsMatch: ValidatorFn = (control: AbstractControl): ValidationErrors
               }
             </button>
           </form>
-          <p class="auth-help"><a routerLink="/login">← Voltar para o login</a></p>
+          <p class="auth-help">
+            <a routerLink="/login"><app-icon name="arrow-left" /> Voltar para o login</a>
+          </p>
         </div>
       </section>
     </main>

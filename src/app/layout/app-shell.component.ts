@@ -3,17 +3,18 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 import { NotificationStore } from '../core/services/notification.store';
 import { RealtimeService } from '../core/services/realtime.service';
+import { IconComponent, IconName } from '../shared/components/icon.component';
 
 interface NavigationItem {
   readonly label: string;
-  readonly icon: string;
+  readonly icon: IconName;
   readonly path: string;
   readonly managerOnly?: boolean;
 }
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, IconComponent],
   template: `
     <div class="app-frame">
       <header class="topbar">
@@ -34,7 +35,7 @@ interface NavigationItem {
             ariaCurrentWhenActive="page"
             aria-label="Notificações"
           >
-            <span aria-hidden="true">◇</span>
+            <app-icon name="bell" />
             @if (notifications.unreadCount() > 0) {
               <span class="notification-button__badge">{{
                 notifications.unreadCount() > 99 ? '99+' : notifications.unreadCount()
@@ -53,7 +54,7 @@ interface NavigationItem {
               ><strong>{{ auth.user()?.name }}</strong
               ><small>{{ roleLabel() }}</small></span
             >
-            <span aria-hidden="true">⌄</span>
+            <app-icon name="chevron-down" />
           </button>
           @if (profileOpen()) {
             <div id="profile-menu" class="profile-menu">
@@ -78,13 +79,13 @@ interface NavigationItem {
               ariaCurrentWhenActive="page"
               class="nav-link"
             >
-              <span aria-hidden="true" class="nav-link__icon">{{ item.icon }}</span>
+              <span aria-hidden="true" class="nav-link__icon"><app-icon [name]="item.icon" /></span>
               <span>{{ item.label }}</span>
             </a>
           }
         </nav>
         <div class="sidebar__footer">
-          <span class="privacy-mark" aria-hidden="true">◈</span>
+          <span class="privacy-mark" aria-hidden="true"><app-icon name="shield-check" /></span>
           <span>Dados protegidos<br /><small>Privacidade por padrão</small></span>
         </div>
       </aside>
@@ -101,7 +102,7 @@ interface NavigationItem {
             ariaCurrentWhenActive="page"
             class="bottom-nav__link"
           >
-            <span aria-hidden="true">{{ item.icon }}</span>
+            <app-icon [name]="item.icon" />
             <small>{{ item.label }}</small>
           </a>
         }
@@ -113,12 +114,12 @@ interface NavigationItem {
 export class AppShellComponent {
   readonly profileOpen = signal(false);
   private readonly items: readonly NavigationItem[] = [
-    { label: 'Visão geral', icon: '⌂', path: '/dashboard' },
-    { label: 'Escala', icon: '▦', path: '/schedule' },
-    { label: 'Colaboradores', icon: '♙', path: '/employees', managerOnly: true },
-    { label: 'Folgas', icon: '○', path: '/time-off' },
-    { label: 'Trocas', icon: '⇄', path: '/swaps' },
-    { label: 'Notificações', icon: '◇', path: '/notifications' },
+    { label: 'Visão geral', icon: 'home', path: '/dashboard' },
+    { label: 'Escala', icon: 'calendar', path: '/schedule' },
+    { label: 'Colaboradores', icon: 'users', path: '/employees', managerOnly: true },
+    { label: 'Folgas', icon: 'calendar-off', path: '/time-off' },
+    { label: 'Trocas', icon: 'swap', path: '/swaps' },
+    { label: 'Notificações', icon: 'bell', path: '/notifications' },
   ];
 
   readonly visibleItems = computed(() =>

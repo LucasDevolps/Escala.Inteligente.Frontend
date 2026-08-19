@@ -14,11 +14,12 @@ import {
   moveMonth,
   todayIso,
 } from '../../core/utils/date.utils';
+import { IconComponent } from '../../shared/components/icon.component';
 import { LoadingComponent } from '../../shared/components/loading.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge.component';
 
 @Component({
-  imports: [RouterLink, LoadingComponent, StatusBadgeComponent],
+  imports: [RouterLink, IconComponent, LoadingComponent, StatusBadgeComponent],
   template: `
     <header class="page-header page-header--dashboard">
       <div>
@@ -32,7 +33,9 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
           }}
         </p>
       </div>
-      <div class="date-chip"><span aria-hidden="true">◷</span>{{ todayLabel }}</div>
+      <div class="date-chip">
+        <span aria-hidden="true"><app-icon name="clock" /></span>{{ todayLabel }}
+      </div>
     </header>
 
     @if (loading()) {
@@ -40,7 +43,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
     } @else if (auth.isManager()) {
       <section class="metric-grid" aria-label="Resumo da operação">
         <a class="metric-card metric-card--brand" [routerLink]="schedulePath()">
-          <div class="metric-card__icon" aria-hidden="true">▦</div>
+          <div class="metric-card__icon" aria-hidden="true"><app-icon name="calendar" /></div>
           <div>
             <small>Escala do mês</small
             ><strong>{{
@@ -52,10 +55,12 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
             }}</strong
             ><span>{{ currentMonthTitle }}</span>
           </div>
-          <span class="metric-card__arrow" aria-hidden="true">→</span>
+          <span class="metric-card__arrow" aria-hidden="true"><app-icon name="arrow-right" /></span>
         </a>
         <a class="metric-card" routerLink="/time-off">
-          <div class="metric-card__icon metric-card__icon--amber" aria-hidden="true">○</div>
+          <div class="metric-card__icon metric-card__icon--amber" aria-hidden="true">
+            <app-icon name="calendar-off" />
+          </div>
           <div>
             <small>Folgas pendentes</small><strong>{{ pendingTimeOffTotal() }}</strong
             ><span>{{
@@ -64,23 +69,27 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
                 : 'solicitações aguardam análise'
             }}</span>
           </div>
-          <span class="metric-card__arrow" aria-hidden="true">→</span>
+          <span class="metric-card__arrow" aria-hidden="true"><app-icon name="arrow-right" /></span>
         </a>
         <a class="metric-card" routerLink="/swaps">
-          <div class="metric-card__icon metric-card__icon--blue" aria-hidden="true">⇄</div>
+          <div class="metric-card__icon metric-card__icon--blue" aria-hidden="true">
+            <app-icon name="swap" />
+          </div>
           <div>
             <small>Trocas recentes</small><strong>{{ recentSwaps().length }}</strong
             ><span>movimentações acompanhadas</span>
           </div>
-          <span class="metric-card__arrow" aria-hidden="true">→</span>
+          <span class="metric-card__arrow" aria-hidden="true"><app-icon name="arrow-right" /></span>
         </a>
         <a class="metric-card" routerLink="/notifications">
-          <div class="metric-card__icon metric-card__icon--violet" aria-hidden="true">◇</div>
+          <div class="metric-card__icon metric-card__icon--violet" aria-hidden="true">
+            <app-icon name="bell" />
+          </div>
           <div>
             <small>Não lidas</small><strong>{{ notifications.unreadCount() }}</strong
             ><span>notificações novas</span>
           </div>
-          <span class="metric-card__arrow" aria-hidden="true">→</span>
+          <span class="metric-card__arrow" aria-hidden="true"><app-icon name="arrow-right" /></span>
         </a>
       </section>
 
@@ -95,7 +104,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
           </header>
           @if (pendingTimeOff().length === 0) {
             <div class="compact-empty">
-              <span aria-hidden="true">✓</span>
+              <span aria-hidden="true"><app-icon name="check" /></span>
               <p><strong>Tudo em dia</strong><br />Nenhuma solicitação pendente.</p>
             </div>
           } @else {
@@ -126,14 +135,14 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
           </header>
           @if ((schedule()?.warnings?.length ?? 0) === 0) {
             <div class="compact-empty">
-              <span aria-hidden="true">✓</span>
+              <span aria-hidden="true"><app-icon name="check" /></span>
               <p><strong>Cobertura equilibrada</strong><br />Nenhum alerta para este mês.</p>
             </div>
           } @else {
             <ul class="warning-list">
               @for (warning of schedule()?.warnings?.slice(0, 4); track $index) {
                 <li>
-                  <span aria-hidden="true">!</span>
+                  <span aria-hidden="true"><app-icon name="alert" /></span>
                   <div>
                     <strong>{{ warning.date ? formatDate(warning.date) : 'Atenção' }}</strong>
                     <p>{{ warning.message }}</p>
@@ -146,7 +155,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
       </div>
     } @else {
       <section class="employee-hero card">
-        <div class="employee-hero__icon" aria-hidden="true">▦</div>
+        <div class="employee-hero__icon" aria-hidden="true"><app-icon name="calendar" /></div>
         <div>
           <p class="eyebrow">Próximo dia de trabalho</p>
           @if (nextAssignment(); as assignment) {
@@ -167,19 +176,19 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
         </header>
         <div class="quick-actions__grid">
           <a class="quick-action" routerLink="/schedule"
-            ><span aria-hidden="true">▦</span><strong>Minha escala</strong
-            ><small>Veja seus dias de trabalho</small></a
+            ><span aria-hidden="true"><app-icon name="calendar" /></span
+            ><strong>Minha escala</strong><small>Veja seus dias de trabalho</small></a
           >
           <a class="quick-action" routerLink="/time-off/new"
-            ><span aria-hidden="true">○</span><strong>Solicitar folga</strong
-            ><small>Avise com antecedência</small></a
+            ><span aria-hidden="true"><app-icon name="calendar-off" /></span
+            ><strong>Solicitar folga</strong><small>Avise com antecedência</small></a
           >
           <a class="quick-action" routerLink="/swaps"
-            ><span aria-hidden="true">⇄</span><strong>Solicitar troca</strong
+            ><span aria-hidden="true"><app-icon name="swap" /></span><strong>Solicitar troca</strong
             ><small>Encontre um colega disponível</small></a
           >
           <a class="quick-action" routerLink="/notifications"
-            ><span aria-hidden="true">◇</span><strong>Notificações</strong
+            ><span aria-hidden="true"><app-icon name="bell" /></span><strong>Notificações</strong
             ><small>{{ notifications.unreadCount() }} não lidas</small></a
           >
         </div>
@@ -195,7 +204,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
         </header>
         @if (notifications.items().length === 0) {
           <div class="compact-empty">
-            <span aria-hidden="true">◇</span>
+            <span aria-hidden="true"><app-icon name="bell" /></span>
             <p><strong>Sem novidades</strong><br />As atualizações aparecerão aqui.</p>
           </div>
         } @else {

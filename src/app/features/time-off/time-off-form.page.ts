@@ -14,17 +14,20 @@ import { ApiErrorService } from '../../core/services/api-error.service';
 import { TimeOffService } from '../../core/services/time-off.service';
 import { ToastService } from '../../core/services/toast.service';
 import { todayIso } from '../../core/utils/date.utils';
+import { IconComponent } from '../../shared/components/icon.component';
 
 function notPast(control: AbstractControl): ValidationErrors | null {
   return String(control.value ?? '') >= todayIso() ? null : { pastDate: true };
 }
 
 @Component({
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, IconComponent],
   template: `
     <header class="page-header">
       <div>
-        <a class="back-link" routerLink="/time-off">← Voltar para solicitações</a>
+        <a class="back-link" routerLink="/time-off"
+          ><app-icon name="arrow-left" /> Voltar para solicitações</a
+        >
         <p class="eyebrow">Planeje com antecedência</p>
         <h1>Solicitar folga</h1>
         <p>Escolha a data e informe somente o necessário para o gestor analisar.</p>
@@ -38,7 +41,7 @@ function notPast(control: AbstractControl): ValidationErrors | null {
     >
       @if (errorMessage()) {
         <div class="alert alert--danger" role="alert">
-          <span aria-hidden="true">!</span><span>{{ errorMessage() }}</span>
+          <span aria-hidden="true"><app-icon name="alert" /></span><span>{{ errorMessage() }}</span>
         </div>
       }
       <div class="field">
@@ -54,7 +57,7 @@ function notPast(control: AbstractControl): ValidationErrors | null {
         <label class="choice-card"
           ><input type="radio" formControlName="reasonCategory" value="PERSONAL" /><span
             aria-hidden="true"
-            >●</span
+            ><app-icon name="user" /></span
           ><span
             ><strong>Pessoal</strong><small>Compromissos e necessidades pessoais</small></span
           ></label
@@ -62,7 +65,7 @@ function notPast(control: AbstractControl): ValidationErrors | null {
         <label class="choice-card"
           ><input type="radio" formControlName="reasonCategory" value="APPOINTMENT" /><span
             aria-hidden="true"
-            >◷</span
+            ><app-icon name="clock" /></span
           ><span
             ><strong>Compromisso</strong><small>Evento ou horário já agendado</small></span
           ></label
@@ -70,7 +73,7 @@ function notPast(control: AbstractControl): ValidationErrors | null {
         <label class="choice-card"
           ><input type="radio" formControlName="reasonCategory" value="OTHER" /><span
             aria-hidden="true"
-            >○</span
+            ><app-icon name="info" /></span
           ><span
             ><strong>Outro</strong><small>Quando as opções anteriores não se aplicam</small></span
           ></label
@@ -93,7 +96,7 @@ function notPast(control: AbstractControl): ValidationErrors | null {
         </div>
       </div>
       <div class="privacy-banner">
-        <span aria-hidden="true">◈</span>
+        <span aria-hidden="true"><app-icon name="shield-check" /></span>
         <p>
           <strong>Proteja sua privacidade.</strong> Não informe dados médicos ou outras informações
           sensíveis desnecessárias.
