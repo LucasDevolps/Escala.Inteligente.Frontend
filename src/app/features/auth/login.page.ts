@@ -4,9 +4,10 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { AuthService } from '../../core/services/auth.service';
+import { IconComponent } from '../../shared/components/icon.component';
 
 @Component({
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, IconComponent],
   template: `
     <main class="auth-layout" id="main-content">
       <section class="auth-hero" aria-hidden="true">
@@ -24,8 +25,12 @@ import { AuthService } from '../../core/services/auth.service';
                 <span [class.mini-calendar__active]="day">{{ $index + 1 }}</span>
               }
             </div>
-            <span class="floating-chip floating-chip--one">✓ Escala publicada</span>
-            <span class="floating-chip floating-chip--two">◇ Tudo atualizado</span>
+            <span class="floating-chip floating-chip--one"
+              ><app-icon name="check" /> Escala publicada</span
+            >
+            <span class="floating-chip floating-chip--two"
+              ><app-icon name="sparkles" /> Tudo atualizado</span
+            >
           </div>
         </div>
         <small>Seguro · Privado · Feito para equipes</small>
@@ -40,12 +45,13 @@ import { AuthService } from '../../core/services/auth.service';
 
           @if (notice()) {
             <div class="alert alert--info" role="status">
-              <span aria-hidden="true">i</span><span>{{ notice() }}</span>
+              <span aria-hidden="true"><app-icon name="info" /></span><span>{{ notice() }}</span>
             </div>
           }
           @if (errorMessage()) {
             <div class="alert alert--danger" role="alert">
-              <span aria-hidden="true">!</span><span>{{ errorMessage() }}</span>
+              <span aria-hidden="true"><app-icon name="alert" /></span
+              ><span>{{ errorMessage() }}</span>
             </div>
           }
 
@@ -96,7 +102,7 @@ import { AuthService } from '../../core/services/auth.service';
               @if (loading()) {
                 <span class="spinner spinner--light" aria-hidden="true"></span> Entrando…
               } @else {
-                Entrar <span aria-hidden="true">→</span>
+                Entrar <app-icon name="arrow-right" />
               }
             </button>
           </form>
@@ -105,8 +111,8 @@ import { AuthService } from '../../core/services/auth.service';
             Primeiro acesso? <a routerLink="/activate">Ative sua conta com o código recebido</a>.
           </p>
           <p class="privacy-note">
-            <span aria-hidden="true">◈</span> Seu acesso é protegido e os dados da sua organização
-            permanecem isolados.
+            <span aria-hidden="true"><app-icon name="shield-check" /></span> Seu acesso é protegido
+            e os dados da sua organização permanecem isolados.
           </p>
         </div>
       </section>

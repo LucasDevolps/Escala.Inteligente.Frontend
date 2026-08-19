@@ -22,11 +22,12 @@ import {
   monthTitle,
   moveMonth,
 } from '../../core/utils/date.utils';
+import { IconComponent } from '../../shared/components/icon.component';
 import { LoadingComponent } from '../../shared/components/loading.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge.component';
 
 @Component({
-  imports: [LoadingComponent, StatusBadgeComponent],
+  imports: [IconComponent, LoadingComponent, StatusBadgeComponent],
   template: `
     <header class="page-header schedule-header">
       <div>
@@ -54,7 +55,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
         (click)="navigateMonth(-1)"
         aria-label="Mês anterior"
       >
-        ←
+        <app-icon name="arrow-left" />
       </button>
       <div>
         <small>Mês selecionado</small>
@@ -66,7 +67,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
         (click)="navigateMonth(1)"
         aria-label="Próximo mês"
       >
-        →
+        <app-icon name="arrow-right" />
       </button>
       @if (auth.isManager() && schedule(); as current) {
         <div class="month-toolbar__actions">
@@ -77,7 +78,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
               (click)="generate()"
               [disabled]="actionLoading()"
             >
-              <span aria-hidden="true">✦</span> Gerar sugestão
+              <app-icon name="sparkles" /> Gerar sugestão
             </button>
             <button
               type="button"
@@ -85,7 +86,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
               (click)="publish()"
               [disabled]="actionLoading() || current.assignments.length === 0"
             >
-              <span aria-hidden="true">✓</span> Publicar escala
+              <app-icon name="check" /> Publicar escala
             </button>
           }
         </div>
@@ -94,7 +95,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
 
     @if (errorMessage() && !notFound()) {
       <div class="alert alert--danger" role="alert">
-        <span aria-hidden="true">!</span><span>{{ errorMessage() }}</span
+        <span aria-hidden="true"><app-icon name="alert" /></span><span>{{ errorMessage() }}</span
         ><button type="button" class="button button--ghost" (click)="reload()">
           Tentar novamente
         </button>
@@ -105,7 +106,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
       <app-loading label="Montando o calendário…" />
     } @else if (notFound()) {
       <section class="empty-state card">
-        <span class="empty-state__icon" aria-hidden="true">▦</span>
+        <span class="empty-state__icon" aria-hidden="true"><app-icon name="calendar" /></span>
         <h2>
           {{ auth.isManager() ? 'Comece a escala deste mês' : 'Escala ainda não disponível' }}
         </h2>
@@ -131,7 +132,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
       @if (current.warnings.length > 0) {
         <details class="coverage-summary card">
           <summary>
-            <span class="coverage-summary__icon" aria-hidden="true">!</span
+            <span class="coverage-summary__icon" aria-hidden="true"><app-icon name="alert" /></span
             ><strong
               >{{ current.warnings.length }}
               {{ current.warnings.length === 1 ? 'alerta precisa' : 'alertas precisam' }} de
@@ -202,7 +203,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
                       <span aria-hidden="true">●</span
                       ><span>{{ auth.isManager() ? assignment.employeeName : 'Trabalho' }}</span>
                       @if (assignment.source === 'SWAP') {
-                        <small>⇄ troca</small>
+                        <small><app-icon name="swap" /> troca</small>
                       }
                     </div>
                     @if ((assignment.reasons?.length ?? 0) > 0) {
@@ -222,24 +223,28 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
                         request.status === 'APPROVED' ? 'off' : 'pending'
                       }}"
                     >
-                      <span aria-hidden="true">{{ request.status === 'APPROVED' ? '○' : '◷' }}</span
-                      >{{
+                      @if (request.status === 'APPROVED') {
+                        <app-icon name="calendar-off" />
+                      } @else {
+                        <app-icon name="clock" />
+                      }
+                      {{
                         auth.isManager() && request.employeeName ? request.employeeName + ': ' : ''
                       }}{{ request.status === 'APPROVED' ? 'Folga' : 'Folga pendente' }}
                     </div>
                   }
                   @if (hasSwap(cell.isoDate)) {
                     <div class="day-indicator day-indicator--swap">
-                      <span aria-hidden="true">⇄</span> Troca
+                      <app-icon name="swap" /> Troca
                     </div>
                   }
                   @if (hasWarning(cell.isoDate)) {
                     <div class="day-indicator day-indicator--alert">
-                      <span aria-hidden="true">!</span> Alerta
+                      <app-icon name="alert" /> Alerta
                     </div>
                   }
                   @if (canEdit() && visibleAssignments(cell.isoDate).length === 0) {
-                    <span class="calendar-day__add">＋ Adicionar</span>
+                    <span class="calendar-day__add"><app-icon name="plus" /> Adicionar</span>
                   }
                 </div>
               </article>
@@ -250,8 +255,8 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
         </div>
       </section>
       <p class="schedule-footnote">
-        <span aria-hidden="true">◈</span> Alterações manuais são auditadas. Escalas sugeridas nunca
-        são publicadas automaticamente.
+        <span aria-hidden="true"><app-icon name="shield-check" /></span> Alterações manuais são
+        auditadas. Escalas sugeridas nunca são publicadas automaticamente.
       </p>
     }
 
@@ -271,7 +276,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
               <p>Selecione quem trabalhará neste dia.</p>
             </div>
             <button type="button" class="icon-button" (click)="closeEditor()" aria-label="Fechar">
-              ×
+              <app-icon name="x" />
             </button>
           </header>
           <div class="employee-checklist">
@@ -280,18 +285,18 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
                 ><input
                   type="checkbox"
                   [checked]="selectedEmployees().has(employee.id)"
-                  (change)="toggleEmployee(employee.id)"
-                /><span class="person-cell__avatar" aria-hidden="true">{{
-                  initials(employee.name)
-                }}</span
+                  (change)="toggleEmployee(employee.id)" /><span
+                  class="person-cell__avatar"
+                  aria-hidden="true"
+                  >{{ initials(employee.name) }}</span
                 ><span
                   ><strong>{{ employee.name }}</strong
                   ><small>Matrícula {{ employee.employeeNumber }}</small></span
-                ><span class="custom-check" aria-hidden="true">✓</span></label
-              >
+                ><span class="custom-check" aria-hidden="true"><app-icon name="check" /></span
+              ></label>
             } @empty {
               <div class="compact-empty">
-                <span aria-hidden="true">♙</span>
+                <span aria-hidden="true"><app-icon name="users" /></span>
                 <p>Nenhum colaborador ativo disponível.</p>
               </div>
             }

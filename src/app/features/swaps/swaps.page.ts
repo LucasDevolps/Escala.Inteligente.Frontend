@@ -14,6 +14,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { ShiftSwapService } from '../../core/services/shift-swap.service';
 import { ToastService } from '../../core/services/toast.service';
 import { formatDate, formatDateTime, todayIso } from '../../core/utils/date.utils';
+import { IconComponent } from '../../shared/components/icon.component';
 import { LoadingComponent } from '../../shared/components/loading.component';
 import { PaginationComponent } from '../../shared/components/pagination.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge.component';
@@ -29,7 +30,13 @@ const notPast = (control: AbstractControl): ValidationErrors | null =>
   String(control.value ?? '') >= todayIso() ? null : { pastDate: true };
 
 @Component({
-  imports: [ReactiveFormsModule, LoadingComponent, PaginationComponent, StatusBadgeComponent],
+  imports: [
+    ReactiveFormsModule,
+    IconComponent,
+    LoadingComponent,
+    PaginationComponent,
+    StatusBadgeComponent,
+  ],
   template: `
     <header class="page-header">
       <div>
@@ -48,7 +55,7 @@ const notPast = (control: AbstractControl): ValidationErrors | null =>
     @if (!auth.isManager()) {
       <section class="card swap-builder">
         <div class="swap-builder__intro">
-          <span class="feature-icon" aria-hidden="true">⇄</span>
+          <span class="feature-icon" aria-hidden="true"><app-icon name="swap" /></span>
           <div>
             <p class="eyebrow">Nova solicitação</p>
             <h2>Com quem você quer trocar?</h2>
@@ -77,7 +84,8 @@ const notPast = (control: AbstractControl): ValidationErrors | null =>
           </div>
           @if (candidateError()) {
             <div class="alert alert--danger" role="alert">
-              <span aria-hidden="true">!</span><span>{{ candidateError() }}</span>
+              <span aria-hidden="true"><app-icon name="alert" /></span
+              ><span>{{ candidateError() }}</span>
             </div>
           }
           @if (candidatesLoaded()) {
@@ -116,14 +124,14 @@ const notPast = (control: AbstractControl): ValidationErrors | null =>
     </section>
     @if (errorMessage()) {
       <div class="alert alert--danger" role="alert">
-        <span aria-hidden="true">!</span><span>{{ errorMessage() }}</span>
+        <span aria-hidden="true"><app-icon name="alert" /></span><span>{{ errorMessage() }}</span>
       </div>
     }
     @if (loading()) {
       <app-loading label="Carregando trocas…" />
     } @else if (pageData().items.length === 0) {
       <section class="empty-state card">
-        <span class="empty-state__icon" aria-hidden="true">⇄</span>
+        <span class="empty-state__icon" aria-hidden="true"><app-icon name="swap" /></span>
         <h2>Nenhuma troca por aqui</h2>
         <p>
           {{
@@ -138,13 +146,14 @@ const notPast = (control: AbstractControl): ValidationErrors | null =>
         @for (swap of pageData().items; track swap.id) {
           <article class="swap-card card">
             <div class="swap-card__date">
-              <span aria-hidden="true">▦</span><strong>{{ formatDate(swap.date) }}</strong>
+              <span aria-hidden="true"><app-icon name="calendar" /></span
+              ><strong>{{ formatDate(swap.date) }}</strong>
             </div>
             <div class="swap-card__people">
               <div>
                 <small>De</small><strong>{{ swap.requesterName ?? 'Solicitante' }}</strong>
               </div>
-              <span aria-hidden="true">→</span>
+              <app-icon name="arrow-right" />
               <div>
                 <small>Para</small><strong>{{ swap.targetName ?? 'Colaborador convidado' }}</strong>
               </div>
@@ -162,7 +171,7 @@ const notPast = (control: AbstractControl): ValidationErrors | null =>
                   (click)="accept(swap)"
                   [disabled]="actionLoading()"
                 >
-                  ✓ Aceitar</button
+                  <app-icon name="check" /> Aceitar</button
                 ><button
                   type="button"
                   class="button button--danger-ghost"
@@ -184,7 +193,7 @@ const notPast = (control: AbstractControl): ValidationErrors | null =>
     }
 
     <div class="inline-note">
-      <span aria-hidden="true">i</span>
+      <span aria-hidden="true"><app-icon name="info" /></span>
       <p>
         <strong>Como funciona:</strong> a troca só pode ocorrer em escala publicada. Ao aceitar,
         todas as condições são validadas novamente e a alteração acontece de forma atômica.

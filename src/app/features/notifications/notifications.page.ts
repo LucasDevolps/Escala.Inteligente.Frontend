@@ -6,11 +6,12 @@ import { NotificationStore } from '../../core/services/notification.store';
 import { RealtimeService } from '../../core/services/realtime.service';
 import { ToastService } from '../../core/services/toast.service';
 import { formatDateTime } from '../../core/utils/date.utils';
+import { IconComponent, type IconName } from '../../shared/components/icon.component';
 import { LoadingComponent } from '../../shared/components/loading.component';
 import { PaginationComponent } from '../../shared/components/pagination.component';
 
 @Component({
-  imports: [LoadingComponent, PaginationComponent],
+  imports: [IconComponent, LoadingComponent, PaginationComponent],
   template: `
     <header class="page-header">
       <div>
@@ -24,7 +25,7 @@ import { PaginationComponent } from '../../shared/components/pagination.componen
     </header>
 
     <div class="privacy-banner">
-      <span aria-hidden="true">◈</span>
+      <span aria-hidden="true"><app-icon name="shield-check" /></span>
       <p>
         O conteúdo é descriptografado pela API somente após validar sua sessão, organização e
         identidade.
@@ -35,7 +36,7 @@ import { PaginationComponent } from '../../shared/components/pagination.componen
       <app-loading label="Buscando notificações…" />
     } @else if (store.items().length === 0) {
       <section class="empty-state card">
-        <span class="empty-state__icon" aria-hidden="true">◇</span>
+        <span class="empty-state__icon" aria-hidden="true"><app-icon name="bell" /></span>
         <h2>Você está em dia</h2>
         <p>Novas atualizações aparecerão aqui automaticamente.</p>
       </section>
@@ -52,9 +53,9 @@ import { PaginationComponent } from '../../shared/components/pagination.componen
               (click)="open(notification)"
               [attr.aria-expanded]="expandedId() === notification.id"
             >
-              <span class="notification-card__icon" aria-hidden="true">{{
-                icon(notification.type)
-              }}</span>
+              <span class="notification-card__icon" aria-hidden="true"
+                ><app-icon [name]="icon(notification.type)"
+              /></span>
               <span class="notification-card__copy"
                 ><strong>{{ notification.title ?? title(notification.type) }}</strong
                 ><span>{{
@@ -65,7 +66,7 @@ import { PaginationComponent } from '../../shared/components/pagination.componen
               @if (!notification.readAt) {
                 <span class="unread-dot"><span class="sr-only">Não lida</span></span>
               }
-              <span aria-hidden="true">{{ expandedId() === notification.id ? '⌃' : '⌄' }}</span>
+              <app-icon [name]="expandedId() === notification.id ? 'chevron-up' : 'chevron-down'" />
             </button>
             @if (expandedId() === notification.id) {
               <div class="notification-card__detail">
@@ -141,11 +142,11 @@ export class NotificationsPage {
     }[this.realtime.state()];
   }
 
-  icon(type: string): string {
-    if (type.includes('SCHEDULE')) return '▦';
-    if (type.includes('TIME_OFF')) return '○';
-    if (type.includes('SWAP')) return '⇄';
-    return '◇';
+  icon(type: string): IconName {
+    if (type.includes('SCHEDULE')) return 'calendar';
+    if (type.includes('TIME_OFF')) return 'calendar-off';
+    if (type.includes('SWAP')) return 'swap';
+    return 'bell';
   }
 
   title(type: string): string {

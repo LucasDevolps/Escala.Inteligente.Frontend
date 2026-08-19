@@ -14,6 +14,7 @@ import { Employee, EmployeeUpsertRequest, ProductivityLevel } from '../../core/m
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { EmployeeService } from '../../core/services/employee.service';
 import { ToastService } from '../../core/services/toast.service';
+import { IconComponent } from '../../shared/components/icon.component';
 import { LoadingComponent } from '../../shared/components/loading.component';
 
 const normalizedPhoneLength: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
@@ -29,11 +30,13 @@ const trimmedLength =
   };
 
 @Component({
-  imports: [ReactiveFormsModule, RouterLink, LoadingComponent],
+  imports: [ReactiveFormsModule, RouterLink, IconComponent, LoadingComponent],
   template: `
     <header class="page-header">
       <div>
-        <a class="back-link" routerLink="/employees">← Voltar para colaboradores</a>
+        <a class="back-link" routerLink="/employees"
+          ><app-icon name="arrow-left" /> Voltar para colaboradores</a
+        >
         <p class="eyebrow">Equipe</p>
         <h1>{{ isEdit() ? 'Editar colaborador' : 'Novo colaborador' }}</h1>
         <p>
@@ -50,7 +53,7 @@ const trimmedLength =
       <app-loading />
     } @else if (activationCode()) {
       <section class="activation-code-card card" aria-labelledby="activation-title">
-        <span class="success-seal" aria-hidden="true">✓</span>
+        <span class="success-seal" aria-hidden="true"><app-icon name="check" /></span>
         <p class="eyebrow">Cadastro concluído</p>
         <h2 id="activation-title">Código de ativação gerado</h2>
         <p>
@@ -64,7 +67,7 @@ const trimmedLength =
           </button>
         </div>
         <div class="alert alert--warning">
-          <span aria-hidden="true">!</span
+          <span aria-hidden="true"><app-icon name="alert" /></span
           ><span
             >O código expira em 24 horas. O colaborador definirá a própria senha e o gestor nunca
             terá acesso a ela.</span
@@ -76,7 +79,8 @@ const trimmedLength =
       <form class="form-card card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
         @if (errorMessage()) {
           <div class="alert alert--danger" role="alert">
-            <span aria-hidden="true">!</span><span>{{ errorMessage() }}</span>
+            <span aria-hidden="true"><app-icon name="alert" /></span
+            ><span>{{ errorMessage() }}</span>
           </div>
         }
         <section class="form-section" aria-labelledby="personal-data-title">

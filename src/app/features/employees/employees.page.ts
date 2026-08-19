@@ -6,6 +6,7 @@ import { ApiErrorService } from '../../core/services/api-error.service';
 import { EmployeeService } from '../../core/services/employee.service';
 import { ToastService } from '../../core/services/toast.service';
 import { formatDateTime } from '../../core/utils/date.utils';
+import { IconComponent } from '../../shared/components/icon.component';
 import { LoadingComponent } from '../../shared/components/loading.component';
 import { PaginationComponent } from '../../shared/components/pagination.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge.component';
@@ -19,7 +20,7 @@ const EMPTY_EMPLOYEE_PAGE: PagedResponse<Employee> = {
 };
 
 @Component({
-  imports: [RouterLink, LoadingComponent, PaginationComponent, StatusBadgeComponent],
+  imports: [RouterLink, IconComponent, LoadingComponent, PaginationComponent, StatusBadgeComponent],
   template: `
     <header class="page-header">
       <div>
@@ -28,7 +29,7 @@ const EMPTY_EMPLOYEE_PAGE: PagedResponse<Employee> = {
         <p>Gerencie acessos, dados profissionais e disponibilidade da equipe.</p>
       </div>
       <a class="button button--primary" routerLink="/employees/new"
-        ><span aria-hidden="true">＋</span> Novo colaborador</a
+        ><app-icon name="plus" /> Novo colaborador</a
       >
     </header>
 
@@ -38,13 +39,14 @@ const EMPTY_EMPLOYEE_PAGE: PagedResponse<Employee> = {
         ><span>colaboradores cadastrados</span>
       </div>
       <div class="toolbar__hint">
-        <span aria-hidden="true">◈</span> A produtividade é visível apenas para gestores.
+        <span aria-hidden="true"><app-icon name="shield-check" /></span> A produtividade é visível
+        apenas para gestores.
       </div>
     </section>
 
     @if (errorMessage()) {
       <div class="alert alert--danger" role="alert">
-        <span aria-hidden="true">!</span><span>{{ errorMessage() }}</span
+        <span aria-hidden="true"><app-icon name="alert" /></span><span>{{ errorMessage() }}</span
         ><button type="button" class="button button--ghost" (click)="load(pageData().page)">
           Tentar novamente
         </button>
@@ -55,7 +57,7 @@ const EMPTY_EMPLOYEE_PAGE: PagedResponse<Employee> = {
       <app-loading label="Carregando colaboradores…" />
     } @else if (pageData().items.length === 0) {
       <section class="empty-state card">
-        <span class="empty-state__icon" aria-hidden="true">♙</span>
+        <span class="empty-state__icon" aria-hidden="true"><app-icon name="users" /></span>
         <h2>Sua equipe começa aqui</h2>
         <p>Cadastre o primeiro colaborador para preparar as escalas.</p>
         <a class="button button--primary" routerLink="/employees/new">Cadastrar colaborador</a>

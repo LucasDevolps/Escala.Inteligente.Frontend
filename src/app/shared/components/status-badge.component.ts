@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { IconComponent, IconName } from './icon.component';
 
 const LABELS: Readonly<Record<string, string>> = {
   ACTIVE: 'Ativo',
@@ -18,8 +19,9 @@ const LABELS: Readonly<Record<string, string>> = {
 
 @Component({
   selector: 'app-status-badge',
+  imports: [IconComponent],
   template: `<span class="status-badge status-badge--{{ tone }}"
-    ><span aria-hidden="true">{{ icon }}</span> {{ label }}</span
+    ><app-icon [name]="icon" /> {{ label }}</span
   >`,
 })
 export class StatusBadgeComponent {
@@ -36,10 +38,9 @@ export class StatusBadgeComponent {
     return 'neutral';
   }
 
-  get icon(): string {
-    if (this.tone === 'success') return '✓';
-    if (this.tone === 'danger') return '×';
-    if (this.tone === 'warning') return '!';
-    return '•';
+  get icon(): IconName {
+    if (this.tone === 'success') return 'check';
+    if (this.tone === 'danger' || this.tone === 'warning') return 'alert';
+    return 'info';
   }
 }
