@@ -1,6 +1,6 @@
 import { Component, computed, effect, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { EMPTY, catchError, finalize } from 'rxjs';
+import { EMPTY, Subscription, catchError, finalize } from 'rxjs';
 import {
   Employee,
   Schedule,
@@ -41,7 +41,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
           }}
         </p>
       </div>
-      @if (schedule(); as current) {
+      @if (displayedSchedule(); as current) {
         <div class="schedule-meta">
           <app-status-badge [status]="current.status" /><span>Revisão {{ current.revision }}</span>
         </div>
@@ -69,7 +69,10 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
       >
         <app-icon name="arrow-right" />
       </button>
-      @if (auth.isManager() && schedule(); as current) {
+      @if (
+        auth.isManager() && activeView() === 'current' && !isReadOnlyView() && schedule();
+        as current
+      ) {
         <div class="month-toolbar__actions">
           @if (current.status !== 'PUBLISHED' && current.status !== 'CLOSED') {
             <button
@@ -93,31 +96,75 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
       }
     </section>
 
-    @if (errorMessage() && !notFound()) {
+    <nav class="schedule-tabs card" aria-label="Visualização da escala">
+      <button
+        type="button"
+        class="schedule-tabs__tab"
+        role="tab"
+        [attr.aria-selected]="activeView() === 'current'"
+        [class.schedule-tabs__tab--active]="activeView() === 'current'"
+        (click)="showCurrentSchedule()"
+      >
+        Escala atual
+        <small>{{ title() }}</small>
+      </button>
+      <button
+        type="button"
+        class="schedule-tabs__tab"
+        role="tab"
+        [attr.aria-selected]="activeView() === 'previous'"
+        [class.schedule-tabs__tab--active]="activeView() === 'previous'"
+        (click)="showPreviousSchedule()"
+      >
+        Mês anterior
+        <small>{{ previousTitle() }}</small>
+      </button>
+      @if (activeView() === 'previous') {
+        <a
+          class="button button--secondary schedule-tabs__open"
+          [href]="previousMonthUrl()"
+          target="_blank"
+          rel="noopener"
+        >
+          <app-icon name="arrow-right" /> Abrir mês anterior em nova aba
+        </a>
+      }
+    </nav>
+
+    @if (displayedErrorMessage() && !displayedNotFound()) {
       <div class="alert alert--danger" role="alert">
-        <span aria-hidden="true"><app-icon name="alert" /></span><span>{{ errorMessage() }}</span
+        <span aria-hidden="true"><app-icon name="alert" /></span
+        ><span>{{ displayedErrorMessage() }}</span
         ><button type="button" class="button button--ghost" (click)="reload()">
           Tentar novamente
         </button>
       </div>
     }
 
-    @if (loading()) {
+    @if (displayedLoading()) {
       <app-loading label="Montando o calendário…" />
-    } @else if (notFound()) {
+    } @else if (displayedNotFound()) {
       <section class="empty-state card">
         <span class="empty-state__icon" aria-hidden="true"><app-icon name="calendar" /></span>
         <h2>
-          {{ auth.isManager() ? 'Comece a escala deste mês' : 'Escala ainda não disponível' }}
+          {{
+            activeView() === 'previous'
+              ? 'Escala anterior não disponível'
+              : auth.isManager()
+                ? 'Comece a escala deste mês'
+                : 'Escala ainda não disponível'
+          }}
         </h2>
         <p>
           {{
-            auth.isManager()
-              ? 'Crie um rascunho para montar manualmente ou gerar uma sugestão determinística.'
-              : 'A escala aparecerá assim que o gestor publicá-la.'
+            activeView() === 'previous'
+              ? 'Ainda não existe uma escala para ' + previousTitle() + '.'
+              : auth.isManager()
+                ? 'Crie um rascunho para montar manualmente ou gerar uma sugestão determinística.'
+                : 'A escala aparecerá assim que o gestor publicá-la.'
           }}
         </p>
-        @if (auth.isManager()) {
+        @if (auth.isManager() && activeView() === 'current' && !isReadOnlyView()) {
           <button
             type="button"
             class="button button--primary"
@@ -128,7 +175,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
           </button>
         }
       </section>
-    } @else if (schedule(); as current) {
+    } @else if (displayedSchedule(); as current) {
       @if (current.warnings.length > 0) {
         <details class="coverage-summary card">
           <summary>
@@ -154,22 +201,43 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
         <div class="calendar-card__header">
           <div>
             <p class="eyebrow">Calendário</p>
-            <h2 id="calendar-title">{{ title() }}</h2>
+            <h2 id="calendar-title">{{ displayedTitle() }}</h2>
           </div>
-          <div class="calendar-legend" aria-label="Legenda">
-            <span><i class="legend-dot legend-dot--work"></i> Trabalho</span
-            ><span><i class="legend-dot legend-dot--off"></i> Folga</span
-            ><span><i class="legend-dot legend-dot--pending"></i> Pendente</span
-            ><span><i class="legend-dot legend-dot--alert"></i> Alerta</span
-            ><span><i class="legend-dot legend-dot--swap"></i> Troca</span>
+          <div class="calendar-card__tools">
+            <button
+              type="button"
+              class="button button--secondary weekend-filter"
+              [class.weekend-filter--active]="weekendsOnly()"
+              [attr.aria-pressed]="weekendsOnly()"
+              (click)="toggleWeekendsOnly()"
+            >
+              <app-icon name="calendar" />
+              {{ weekendsOnly() ? 'Exibir todos os dias' : 'Somente finais de semana' }}
+            </button>
+            <div class="calendar-legend" aria-label="Legenda">
+              <span><i class="legend-dot legend-dot--work"></i> Trabalho</span
+              ><span><i class="legend-dot legend-dot--off"></i> Folga</span
+              ><span><i class="legend-dot legend-dot--pending"></i> Pendente</span
+              ><span><i class="legend-dot legend-dot--alert"></i> Alerta</span
+              ><span><i class="legend-dot legend-dot--swap"></i> Troca</span>
+            </div>
           </div>
         </div>
-        <div class="weekday-row" aria-hidden="true">
-          <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span
-          ><span>Sex</span><span>Sáb</span>
+        <div class="weekday-row" [class.weekday-row--weekends]="weekendsOnly()" aria-hidden="true">
+          @if (weekendsOnly()) {
+            <span>Dom</span><span>Sáb</span>
+          } @else {
+            <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span
+            ><span>Sex</span><span>Sáb</span>
+          }
         </div>
-        <div class="calendar-grid" role="grid" [attr.aria-label]="'Escala de ' + title()">
-          @for (cell of calendar(); track cell.isoDate ?? $index) {
+        <div
+          class="calendar-grid"
+          [class.calendar-grid--weekends]="weekendsOnly()"
+          role="grid"
+          [attr.aria-label]="'Escala de ' + displayedTitle()"
+        >
+          @for (cell of displayedCalendar(); track cell.isoDate ?? $index) {
             @if (cell.isoDate) {
               <article
                 class="calendar-day"
@@ -255,12 +323,16 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
         </div>
       </section>
       <p class="schedule-footnote">
-        <span aria-hidden="true"><app-icon name="shield-check" /></span> Alterações manuais são
-        auditadas. Escalas sugeridas nunca são publicadas automaticamente.
+        <span aria-hidden="true"><app-icon name="shield-check" /></span>
+        {{
+          activeView() === 'previous' || isReadOnlyView()
+            ? 'Visualização de consulta. Esta escala não pode ser alterada nesta tela.'
+            : 'Alterações manuais são auditadas. Escalas sugeridas nunca são publicadas automaticamente.'
+        }}
       </p>
     }
 
-    @if (selectedDate(); as date) {
+    @if (editorDate(); as date) {
       <div class="modal-backdrop" role="presentation" (click)="closeEditor()">
         <section
           class="modal-panel"
@@ -302,6 +374,9 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
             }
           </div>
           <footer class="modal-panel__footer">
+            <button type="button" class="button button--secondary" (click)="showPreviousSchedule()">
+              Ver mês anterior
+            </button>
             <button type="button" class="button button--ghost" (click)="closeEditor()">
               Cancelar</button
             ><button
@@ -322,21 +397,66 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge.compo
 export class SchedulePage {
   readonly year = input.required<string>();
   readonly month = input.required<string>();
+  readonly view = input<string>();
   readonly schedule = signal<Schedule | null>(null);
+  readonly previousSchedule = signal<Schedule | null>(null);
   readonly employees = signal<readonly Employee[]>([]);
   readonly timeOffRequests = signal<readonly TimeOffRequest[]>([]);
   readonly swaps = signal<readonly ShiftSwap[]>([]);
   readonly loading = signal(true);
+  readonly previousLoading = signal(true);
   readonly actionLoading = signal(false);
   readonly notFound = signal(false);
+  readonly previousNotFound = signal(false);
   readonly errorMessage = signal('');
+  readonly previousErrorMessage = signal('');
+  readonly activeView = signal<'current' | 'previous'>('current');
+  readonly weekendsOnly = signal(false);
   readonly selectedDate = signal<string | null>(null);
   readonly selectedEmployees = signal<ReadonlySet<string>>(new Set());
+  readonly editorDate = computed(() =>
+    this.activeView() === 'current' ? this.selectedDate() : null,
+  );
   readonly parsedYear = computed(() => Number(this.year()));
   readonly parsedMonth = computed(() => Number(this.month()));
   readonly title = computed(() => monthTitle(this.parsedYear(), this.parsedMonth()));
+  readonly previousMonth = computed(() => moveMonth(this.parsedYear(), this.parsedMonth(), -1));
+  readonly previousTitle = computed(() => {
+    const previous = this.previousMonth();
+    return monthTitle(previous.year, previous.month);
+  });
+  readonly previousMonthUrl = computed(() => {
+    const previous = this.previousMonth();
+    return `/schedule/${previous.year}/${previous.month}?view=readonly`;
+  });
+  readonly isReadOnlyView = computed(() => this.view() === 'readonly');
   readonly calendar = computed<readonly CalendarCell[]>(() =>
     buildCalendar(this.parsedYear(), this.parsedMonth()),
+  );
+  readonly previousCalendar = computed<readonly CalendarCell[]>(() => {
+    const previous = this.previousMonth();
+    return buildCalendar(previous.year, previous.month);
+  });
+  readonly displayedSchedule = computed(() =>
+    this.activeView() === 'current' ? this.schedule() : this.previousSchedule(),
+  );
+  readonly displayedTitle = computed(() =>
+    this.activeView() === 'current' ? this.title() : this.previousTitle(),
+  );
+  readonly displayedCalendar = computed(() => {
+    const calendar = this.activeView() === 'current' ? this.calendar() : this.previousCalendar();
+    return this.weekendsOnly()
+      ? calendar.filter((cell) => cell.isoDate && this.isWeekend(cell.isoDate))
+      : calendar;
+  });
+  readonly displayedLoading = computed(() =>
+    this.activeView() === 'current' ? this.loading() : this.previousLoading(),
+  );
+  readonly displayedNotFound = computed(() =>
+    this.activeView() === 'current' ? this.notFound() : this.previousNotFound(),
+  );
+  readonly displayedErrorMessage = computed(() =>
+    this.activeView() === 'current' ? this.errorMessage() : this.previousErrorMessage(),
   );
   readonly activeEmployees = computed(() =>
     this.employees().filter((employee) => employee.isActive),
@@ -344,6 +464,8 @@ export class SchedulePage {
   readonly canEdit = computed(
     () =>
       this.auth.isManager() &&
+      this.activeView() === 'current' &&
+      !this.isReadOnlyView() &&
       !!this.schedule() &&
       !['PUBLISHED', 'CLOSED'].includes(this.schedule()?.status ?? ''),
   );
@@ -375,8 +497,14 @@ export class SchedulePage {
         });
         return;
       }
-      const subscription = this.fetchSchedule(year, month);
-      onCleanup(() => subscription.unsubscribe());
+      this.activeView.set('current');
+      this.weekendsOnly.set(false);
+      this.closeEditor();
+      const subscriptions = new Subscription();
+      subscriptions.add(this.fetchSchedule(year, month));
+      const previous = moveMonth(year, month, -1);
+      subscriptions.add(this.fetchPreviousSchedule(previous.year, previous.month));
+      onCleanup(() => subscriptions.unsubscribe());
     });
 
     if (this.auth.isManager()) {
@@ -389,12 +517,31 @@ export class SchedulePage {
   }
 
   reload(): void {
+    if (this.activeView() === 'previous') {
+      const previous = this.previousMonth();
+      this.fetchPreviousSchedule(previous.year, previous.month);
+      return;
+    }
     this.fetchSchedule(this.parsedYear(), this.parsedMonth());
+  }
+
+  showCurrentSchedule(): void {
+    this.activeView.set('current');
+  }
+
+  showPreviousSchedule(): void {
+    this.activeView.set('previous');
+  }
+
+  toggleWeekendsOnly(): void {
+    this.weekendsOnly.update((value) => !value);
   }
 
   navigateMonth(delta: number): void {
     const destination = moveMonth(this.parsedYear(), this.parsedMonth(), delta);
-    void this.router.navigate(['/schedule', destination.year, destination.month]);
+    void this.router.navigate(['/schedule', destination.year, destination.month], {
+      queryParams: this.isReadOnlyView() ? { view: 'readonly' } : undefined,
+    });
   }
 
   createSchedule(): void {
@@ -522,7 +669,10 @@ export class SchedulePage {
   }
 
   assignmentsFor(date: string): readonly ScheduleAssignment[] {
-    return this.schedule()?.assignments.filter((assignment) => assignment.workDate === date) ?? [];
+    return (
+      this.displayedSchedule()?.assignments.filter((assignment) => assignment.workDate === date) ??
+      []
+    );
   }
 
   visibleAssignments(date: string): readonly ScheduleAssignment[] {
@@ -539,7 +689,7 @@ export class SchedulePage {
   }
 
   hasWarning(date: string): boolean {
-    return this.schedule()?.warnings.some((warning) => warning.date === date) ?? false;
+    return this.displayedSchedule()?.warnings.some((warning) => warning.date === date) ?? false;
   }
 
   hasSwap(date: string): boolean {
@@ -551,7 +701,7 @@ export class SchedulePage {
   dayAriaLabel(cell: CalendarCell): string {
     if (!cell.isoDate) return '';
     const states = [
-      `${cell.day} de ${this.title()}`,
+      `${cell.day} de ${this.displayedTitle()}`,
       ...this.visibleAssignments(cell.isoDate).map((assignment) =>
         this.auth.isManager() ? `${assignment.employeeName} trabalha` : 'Dia de trabalho',
       ),
@@ -574,6 +724,12 @@ export class SchedulePage {
 
   readonly formatDate = formatDate;
 
+  private isWeekend(isoDate: string): boolean {
+    const [year, month, day] = isoDate.split('-').map(Number);
+    const weekday = new Date(year, month - 1, day).getDay();
+    return weekday === 0 || weekday === 6;
+  }
+
   private fetchSchedule(year: number, month: number) {
     this.loading.set(true);
     this.errorMessage.set('');
@@ -589,6 +745,26 @@ export class SchedulePage {
             this.notFound.set(true);
           } else {
             this.errorMessage.set(this.errors.message(error));
+          }
+        },
+      });
+  }
+
+  private fetchPreviousSchedule(year: number, month: number) {
+    this.previousLoading.set(true);
+    this.previousErrorMessage.set('');
+    this.previousNotFound.set(false);
+    return this.schedules
+      .get(year, month)
+      .pipe(finalize(() => this.previousLoading.set(false)))
+      .subscribe({
+        next: (schedule) => this.previousSchedule.set(schedule),
+        error: (error: unknown) => {
+          this.previousSchedule.set(null);
+          if (this.errors.code(error) === 'SCHEDULE_NOT_FOUND') {
+            this.previousNotFound.set(true);
+          } else {
+            this.previousErrorMessage.set(this.errors.message(error));
           }
         },
       });
