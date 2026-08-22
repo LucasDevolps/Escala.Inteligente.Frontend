@@ -36,6 +36,37 @@
 .month-toolbar__actions .button {
   flex: 1;
 }
+.schedule-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  padding: 0.4rem;
+}
+.schedule-tabs__tab {
+  display: grid;
+  gap: 0.2rem;
+  min-height: 3.5rem;
+  padding: 0.55rem 0.7rem;
+  border: 0;
+  border-radius: 0.65rem;
+  color: var(--muted);
+  background: transparent;
+  font: 800 0.82rem var(--font-display);
+  cursor: pointer;
+}
+.schedule-tabs__tab small {
+  font: 500 0.68rem var(--font-body);
+}
+.schedule-tabs__tab--active {
+  color: var(--brand-deep);
+  background: var(--brand-pale);
+  box-shadow: inset 0 -2px 0 var(--brand);
+}
+.schedule-tabs__open {
+  grid-column: 1 / -1;
+  justify-self: stretch;
+}
 .coverage-summary {
   margin-bottom: 1rem;
   overflow: hidden;
@@ -81,6 +112,18 @@
 }
 .calendar-card__header h2 {
   margin: 0.15rem 0 0;
+}
+.calendar-card__tools {
+  display: grid;
+  gap: 0.75rem;
+}
+.weekend-filter {
+  justify-self: stretch;
+}
+.weekend-filter--active {
+  color: var(--brand-deep);
+  border-color: var(--brand);
+  background: var(--brand-pale);
 }
 .calendar-legend {
   display: flex;
@@ -309,10 +352,24 @@
     border: 0;
     border-left: 1px solid var(--border);
   }
+  .schedule-tabs {
+    grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1fr) auto;
+    align-items: stretch;
+  }
+  .schedule-tabs__open {
+    grid-column: auto;
+    align-self: center;
+  }
   .calendar-card__header {
     grid-template-columns: 1fr auto;
     align-items: end;
     padding: 1.25rem;
+  }
+  .calendar-card__tools {
+    justify-items: end;
+  }
+  .weekend-filter {
+    justify-self: end;
   }
   .weekday-row {
     display: grid;
@@ -329,10 +386,16 @@
     text-transform: uppercase;
     letter-spacing: 0.07em;
   }
+  .weekday-row--weekends {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .calendar-grid {
     grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 0;
     padding: 0;
+  }
+  .calendar-grid--weekends {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .calendar-day {
     min-height: 8.5rem;
